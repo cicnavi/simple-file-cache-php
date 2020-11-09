@@ -1,3 +1,5 @@
+![Build](https://github.com/cicnavi/simple-file-cache-php/workflows/Build/badge.svg)
+
 # cicnavi/simple-file-cache-php
 [PSR-16](https://www.php-fig.org/psr/psr-16/) simple cache provider based on files.
 
