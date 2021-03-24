@@ -10,7 +10,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     container:
-      image: cicnavi/dap:7.4
+      image: cicnavi/dap:74
     steps:
     - uses: actions/checkout@v2
     - name: Validate composer.json and composer.lock
