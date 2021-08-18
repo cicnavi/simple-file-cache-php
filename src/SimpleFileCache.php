@@ -36,20 +36,24 @@ class SimpleFileCache implements CacheInterface
 
     /**
      * SimpleFileCache constructor.
-     * @param string $storagePath Path to writable folder used to store the cache files
      * @param string $cacheName Cache name, may contain up to 64 chars: a-zA-Z0-9_-
+     * @param string|null $storagePath Path to writable folder used to store the cache files
      * @param FileSystemServiceInterface|null $fileSystemService
      * @throws CacheException
      */
     public function __construct(
-        string $storagePath,
         string $cacheName = 'simple-file-cache',
+        ?string $storagePath = null,
         ?FileSystemServiceInterface $fileSystemService = null
     ) {
         $this->fileSystemService = $fileSystemService ?? new FileSystemService();
 
         $this->validateCacheName($cacheName);
         $this->cacheName = $cacheName;
+
+        $storagePath = $storagePath ?? sys_get_temp_dir();
+        // Make sure the path doesn't end with directory separator.
+        $storagePath = rtrim($storagePath, DIRECTORY_SEPARATOR);
 
         $this->validateStoragePath($storagePath);
         $this->storagePath = $storagePath;
