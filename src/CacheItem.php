@@ -166,7 +166,7 @@ class CacheItem implements JsonSerializable
 
         $ttl = $item[self::ARRAY_KEY_EXPIRES_AT];
         if (! is_null($ttl)) {
-            $ttl = $ttl - time();
+            $ttl -= time();
         }
 
         return new CacheItem($value, $ttl);

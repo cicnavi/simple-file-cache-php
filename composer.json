@@ -3,7 +3,7 @@
     "description": "PSR-16 simple cache provider based on files.",
     "type": "library",
     "require": {
-        "php": ">=7.4",
+        "php": "^8.2",
         "ext-json": "*",
         "ext-openssl": "*",
         "ext-gmp": "*",
@@ -32,14 +32,14 @@
     "minimum-stability": "stable",
     "require-dev": {
         "ext-xdebug": "*",
-        "vimeo/psalm": "^3.14",
         "squizlabs/php_codesniffer": "^3.5",
-        "phpunit/phpunit": "^9.4"
+        "phpunit/phpunit": "^11",
+        "phpstan/phpstan": "^2.1",
+        "rector/rector": "^2.0"
     },
     "scripts": {
         "test": [
             "vendor/bin/phpunit",
-            "vendor/bin/psalm --show-info=true",
             "vendor/bin/phpcs -p"
         ]
     }
