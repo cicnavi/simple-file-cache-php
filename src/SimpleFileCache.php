@@ -30,11 +30,6 @@ class SimpleFileCache implements CacheInterface
     protected string $fileExtension = '.json';
 
     /**
-     * @var FileSystemServiceInterface $fileSystemService Service used to interact with the filesystem.
-     */
-    protected FileSystemServiceInterface $fileSystemService;
-
-    /**
      * SimpleFileCache constructor.
      * @param string $cacheName Cache name, may contain up to 64 chars: a-zA-Z0-9_-
      * @param string|null $storagePath Path to writable folder used to store the cache files
@@ -44,14 +39,12 @@ class SimpleFileCache implements CacheInterface
     public function __construct(
         string $cacheName = 'simple-file-cache',
         ?string $storagePath = null,
-        ?FileSystemServiceInterface $fileSystemService = null
+        protected FileSystemServiceInterface $fileSystemService = new FileSystemService()
     ) {
-        $this->fileSystemService = $fileSystemService ?? new FileSystemService();
-
         $this->validateCacheName($cacheName);
         $this->cacheName = $cacheName;
 
-        $storagePath = $storagePath ?? sys_get_temp_dir();
+        $storagePath ??= sys_get_temp_dir();
         // Make sure the path doesn't end with directory separator.
         $storagePath = rtrim($storagePath, DIRECTORY_SEPARATOR);
 
@@ -277,7 +270,7 @@ class SimpleFileCache implements CacheInterface
     {
         try {
             return (CacheItem::fromItemArray($item))->isExpired();
-        } catch (Throwable $exception) {
+        } catch (Throwable) {
             return true; // It is invalid
         }
     }
