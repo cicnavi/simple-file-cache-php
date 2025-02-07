@@ -20,7 +20,7 @@ class FileSystemService implements FileSystemServiceInterface
     /**
      * @inheritDoc
      */
-    public function createDir(string $dirPath, $mode = 0755, $recursive = true): bool
+    public function createDir(string $dirPath, int $mode = 0755, bool $recursive = true): bool
     {
         if ($this->dirExists($dirPath)) {
             throw new CacheException(sprintf('Error creating dir. Dir exists (%s)', $dirPath));
@@ -100,7 +100,7 @@ class FileSystemService implements FileSystemServiceInterface
     /**
      * @inheritDoc
      */
-    public function getDataFromFile(string $filePath, string $fileGetContentsFunc = 'file_get_contents')
+    public function getDataFromFile(string $filePath, string $fileGetContentsFunc = 'file_get_contents'): string
     {
         if (! is_callable($fileGetContentsFunc)) {
             throw new CacheException('Provided file get contents function is not callable.');

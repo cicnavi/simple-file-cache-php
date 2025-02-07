@@ -22,7 +22,7 @@ interface FileSystemServiceInterface
      * @return bool True for success, else false.
      * @throws CacheException If dir already exists
      */
-    public function createDir(string $dirPath, $mode = 0777, $recursive = true): bool;
+    public function createDir(string $dirPath, int $mode = 0777, bool $recursive = true): bool;
 
     /**
      * @param string $dirPath
@@ -68,7 +68,7 @@ interface FileSystemServiceInterface
      * @return string Read data as string, or false on failure.
      * @throws CacheException If file does not exist or file could not be read.
      */
-    public function getDataFromFile(string $filePath);
+    public function getDataFromFile(string $filePath): string;
 
     /**
      * @param string $filePath
