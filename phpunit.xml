@@ -24,6 +24,7 @@
   </coverage>
   <php>
     <env name="ENV" value="testing"/>
+    <env name="XDEBUG_MODE" value="coverage"/>
   </php>
   <source>
     <include>
