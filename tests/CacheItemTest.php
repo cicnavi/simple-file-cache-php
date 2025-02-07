@@ -2,22 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Cicnavi\Tests\SimpleFileCache\Cache;
+namespace Cicnavi\Tests\SimpleFileCache;
 
 use Cicnavi\SimpleFileCache\CacheItem;
 use Cicnavi\SimpleFileCache\Exceptions\InvalidArgumentException;
+use Cicnavi\SimpleFileCache\SimpleFileCache;
 use DateInterval;
 use DateTime;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class CacheItemTest
- * @package Cicnavi\Tests\Cache
- *
- * @covers \Cicnavi\SimpleFileCache\CacheItem
- *
- *  @psalm-suppress PropertyNotSetInConstructor
- */
+#[CoversClass(CacheItem::class)]
+#[UsesClass(SimpleFileCache::class)]
 class CacheItemTest extends TestCase
 {
     protected static array $testValues;
@@ -101,15 +98,6 @@ class CacheItemTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         new CacheItem(STDOUT); // resource can't be cached
-    }
-
-    public function testConstructWithInvalidTtlThrows(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        /**
-         * @psalm-suppress InvalidScalarArgument This is to simulate exception throw
-         */
-        new CacheItem('foo', self::$testTtlInvalid);
     }
 
     public function testConstructFromItemArray(): void

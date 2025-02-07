@@ -14,7 +14,7 @@ class CacheItem implements JsonSerializable
     /**
      * @var mixed $value Actual value to be cached.
      */
-    protected $value;
+    protected mixed $value;
 
     /**
      * @var string $valueType Indication of the type of value resolved during instantiation using gettype()
@@ -72,11 +72,11 @@ class CacheItem implements JsonSerializable
     /**
      * CacheItem constructor.
      * @param mixed $value Value to be stored in cache.
-     * @param null|int|DateInterval $ttl TimeToLive - duration in seconds (or DateInterval) for the item to be
+     * @param DateInterval|int|null $ttl TimeToLive - duration in seconds (or DateInterval) for the item to be
      * considered valid. If null, the item is considered valid indefinitely (it does not expire).
      * @throws InvalidArgumentException
      */
-    public function __construct($value, $ttl = null)
+    public function __construct(mixed $value, DateInterval|int|null $ttl = null)
     {
         $this->value = $this->normalizeValue($value);
         $this->valueType = gettype($value);
@@ -126,9 +126,9 @@ class CacheItem implements JsonSerializable
     }
 
     /**
-     * @param $item
-     * @see CacheItem::ARRAY_REQUIRED_PARAMETERS
+     * @param array $item
      * @return bool True if valid, else false.
+     * @see CacheItem::ARRAY_REQUIRED_PARAMETERS
      */
     public static function isValidItemArray(array $item): bool
     {
@@ -177,7 +177,7 @@ class CacheItem implements JsonSerializable
      * @return mixed If value is object, the value will be serialized. Else, the value will be returned as is.
      * @throws InvalidArgumentException If the value type is not supported (resource or unknown type).
      */
-    protected function normalizeValue($value)
+    protected function normalizeValue(mixed $value): mixed
     {
         $type = gettype($value);
 
@@ -200,10 +200,10 @@ class CacheItem implements JsonSerializable
 
     /**
      * Get current value.
-     * @param mixed $default Default value to return if the real value is expired.
+     * @param mixed|null $default Default value to return if the real value is expired.
      * @return mixed
      */
-    public function getValue($default = null)
+    public function getValue(mixed $default = null): mixed
     {
         if ($this->isExpired()) {
             return $default;
@@ -226,12 +226,12 @@ class CacheItem implements JsonSerializable
 
     /**
      * Resolve the provided $ttl to timestamp or null.
-     * @param null|int|DateInterval $ttl TimeToLive. If null, stays null. If int or DateInterval, it is
+     * @param DateInterval|int|null $ttl TimeToLive. If null, stays null. If int or DateInterval, it is
      * used as number of seconds to be added to current time to create the timestamp.
      * @return null|int Null or timestamp to be used as indication of expiration.
      * @throws InvalidArgumentException If $ttl is not null, int or DateInterval
      */
-    protected function resolveTtl($ttl)
+    protected function resolveTtl(DateInterval|int|null $ttl): ?int
     {
         if (is_null($ttl)) {
             return null;
@@ -241,13 +241,6 @@ class CacheItem implements JsonSerializable
             return time() + $ttl;
         }
 
-        /**
-         * @psalm-suppress RedundantConditionGivenDocblockType We are checking user input, so this is necessary.
-         */
-        if ($ttl instanceof DateInterval) {
-            return (new DateTimeImmutable())->add($ttl)->getTimestamp();
-        }
-
-        throw new InvalidArgumentException('TTL value is not valid.');
+        return (new DateTimeImmutable())->add($ttl)->getTimestamp();
     }
 }

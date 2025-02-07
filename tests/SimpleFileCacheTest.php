@@ -9,15 +9,14 @@ use Cicnavi\SimpleFileCache\Exceptions\InvalidArgumentException;
 use Cicnavi\SimpleFileCache\SimpleFileCache;
 use Cicnavi\SimpleFileCache\Services\FileSystemService;
 use Exception;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use Cicnavi\SimpleFileCache\CacheItem;
 
-/**
- * Class SimpleFileCacheTest
- * @package Cicnavi\Tests\Cache
- *
- * @covers \Cicnavi\SimpleFileCache\SimpleFileCache
- */
+#[CoversClass(SimpleFileCache::class)]
+#[UsesClass(CacheItem::class)]
+#[UsesClass(FileSystemService::class)]
 class SimpleFileCacheTest extends TestCase
 {
     protected static string $testCachePath;
@@ -30,7 +29,7 @@ class SimpleFileCacheTest extends TestCase
 
     public function setUp(): void
     {
-        self::$testCachePath = dirname(__DIR__, 1) . '/tmp/cache-test';
+        self::$testCachePath = dirname(__DIR__, 1) . '/build/cache-test';
 
         $sampleObj = new CacheItem('sample');
 
@@ -80,9 +79,6 @@ class SimpleFileCacheTest extends TestCase
         Tools::rmdirRecursive(self::$testCachePath);
     }
 
-    /**
-     * @uses \Cicnavi\SimpleFileCache\Services\FileSystemService
-     */
     public function testConstructWithoutParameters(): void
     {
         $cache = new SimpleFileCache();
@@ -90,9 +86,6 @@ class SimpleFileCacheTest extends TestCase
         $this->assertTrue($cache->has('test'));
     }
 
-    /**
-     * @uses \Cicnavi\SimpleFileCache\Services\FileSystemService
-     */
     public function testConstructWithInvalidCacheNameThrows(): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -100,18 +93,12 @@ class SimpleFileCacheTest extends TestCase
         new SimpleFileCache('invalid cache name');
     }
 
-    /**
-     * @uses \Cicnavi\SimpleFileCache\Services\FileSystemService
-     */
     public function testConstructWithCustomCacheName(): void
     {
         $cache = new SimpleFileCache(self::$testCacheName);
         $this->assertSame(self::$testCacheName, $cache->getCacheName());
     }
 
-    /**
-     * @uses \Cicnavi\SimpleFileCache\Services\FileSystemService
-     */
     public function testConstructWithInvalidPathThrows(): void
     {
         $this->expectException(CacheException::class);
@@ -119,18 +106,12 @@ class SimpleFileCacheTest extends TestCase
         new SimpleFileCache(self::$testCacheName, 'invalid-path');
     }
 
-    /**
-     * @uses \Cicnavi\SimpleFileCache\Services\FileSystemService
-     */
     public function testConstructWithCustomStoragePath(): void
     {
         $cache = new SimpleFileCache(self::$testCacheName, self::$testCachePath);
         $this->assertTrue(is_dir($cache->getCachePath()));
     }
 
-    /**
-     * @uses \Cicnavi\SimpleFileCache\Services\FileSystemService
-     */
     public function testGetWithInvalidKeyThrows(): void
     {
         $cache = new SimpleFileCache();
@@ -140,9 +121,6 @@ class SimpleFileCacheTest extends TestCase
         $cache->get('a b');
     }
 
-    /**
-     * @uses \Cicnavi\SimpleFileCache\Services\FileSystemService
-     */
     public function testGetDefaultValue(): void
     {
         $cache = new SimpleFileCache();
@@ -151,9 +129,6 @@ class SimpleFileCacheTest extends TestCase
         $this->assertSame($default, $cache->get('nonexistand', $default));
     }
 
-    /**
-     * @uses \Cicnavi\SimpleFileCache\Services\FileSystemService
-     */
     public function testEnsureCachePathExistenceThrows(): void
     {
         // Ensure cache files...
@@ -171,9 +146,6 @@ class SimpleFileCacheTest extends TestCase
         new SimpleFileCache(self::$testCacheName, self::$testCachePath, $fileServiceStub);
     }
 
-    /**
-     * @uses \Cicnavi\SimpleFileCache\Services\FileSystemService
-     */
     public function testSetGet(): void
     {
         $cache = new SimpleFileCache(self::$testCacheName, self::$testCachePath);
@@ -182,9 +154,6 @@ class SimpleFileCacheTest extends TestCase
         $this->assertSame(self::$testValue, $cache->get(self::$testKey));
     }
 
-    /**
-     * @uses \Cicnavi\SimpleFileCache\Services\FileSystemService
-     */
     public function testHas(): void
     {
         $cache = new SimpleFileCache(self::$testCacheName, self::$testCachePath);
@@ -195,9 +164,6 @@ class SimpleFileCacheTest extends TestCase
         $this->assertFalse($cache->has(self::$testKey));
     }
 
-    /**
-     * @uses \Cicnavi\SimpleFileCache\Services\FileSystemService
-     */
     public function testPersistDataThrows(): void
     {
         // Ensure cache files...
@@ -217,9 +183,6 @@ class SimpleFileCacheTest extends TestCase
         $cache->set('test', 'test');
     }
 
-    /**
-     * @uses \Cicnavi\SimpleFileCache\Services\FileSystemService
-     */
     public function testReadCacheItemArrayThrows(): void
     {
         // Ensure cache files...
@@ -239,9 +202,6 @@ class SimpleFileCacheTest extends TestCase
         $cache->get('test', 'test');
     }
 
-    /**
-     * @uses \Cicnavi\SimpleFileCache\Services\FileSystemService
-     */
     public function testDelete(): void
     {
         $cache = new SimpleFileCache(self::$testCacheName, self::$testCachePath);
@@ -252,9 +212,6 @@ class SimpleFileCacheTest extends TestCase
         $this->assertNull($cache->get('foo'));
     }
 
-    /**
-     * @uses \Cicnavi\SimpleFileCache\Services\FileSystemService
-     */
     public function testGetSetDeleteMultiple(): void
     {
         $cache = new SimpleFileCache(self::$testCacheName, self::$testCachePath);
@@ -265,9 +222,6 @@ class SimpleFileCacheTest extends TestCase
         $this->assertNotSame($values, $cache->getMultiple(array_keys($values)));
     }
 
-    /**
-     * @uses \Cicnavi\SimpleFileCache\Services\FileSystemService
-     */
     public function testSetMultipleFails(): void
     {
         // Ensure cache files...
@@ -288,9 +242,6 @@ class SimpleFileCacheTest extends TestCase
         $this->assertFalse($cache->setMultiple($values));
     }
 
-    /**
-     * @uses \Cicnavi\SimpleFileCache\Services\FileSystemService
-     */
     public function testDeleteMultipleFails(): void
     {
         // Ensure cache files...
@@ -309,20 +260,6 @@ class SimpleFileCacheTest extends TestCase
         $cache = new SimpleFileCache(self::$testCacheName, self::$testCachePath, $fileServiceStub);
         $values = ['foo' => 'bar', 'test' => 'test'];
         $this->assertFalse($cache->deleteMultiple($values));
-    }
-
-    /**
-     * @uses \Cicnavi\SimpleFileCache\Services\FileSystemService
-     */
-    public function testValidateIterable(): void
-    {
-        $cache = new SimpleFileCache(self::$testCacheName, self::$testCachePath);
-        $this->expectException(InvalidArgumentException::class);
-        /**
-         * @noinspection PhpParamsInspection For testing purposes
-         * @psalm-suppress InvalidArgument For testing purposes
-         */
-        $cache->getMultiple('invalid');
     }
 
     public function testClear(): void

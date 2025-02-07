@@ -33,8 +33,9 @@ class SimpleFileCache implements CacheInterface
      * SimpleFileCache constructor.
      * @param string $cacheName Cache name, may contain up to 64 chars: a-zA-Z0-9_-
      * @param string|null $storagePath Path to writable folder used to store the cache files
-     * @param FileSystemServiceInterface|null $fileSystemService
-     * @throws CacheException
+     * @param \Cicnavi\SimpleFileCache\Services\Interfaces\FileSystemServiceInterface $fileSystemService
+     * @throws \Cicnavi\SimpleFileCache\Exceptions\CacheException
+     * @throws \Cicnavi\SimpleFileCache\Exceptions\InvalidArgumentException
      */
     public function __construct(
         string $cacheName = 'simple-file-cache',
@@ -91,7 +92,7 @@ class SimpleFileCache implements CacheInterface
      * @param mixed $value If value is not iterable.
      * @throws InvalidArgumentException
      */
-    protected function validateIterable($value): void
+    protected function validateIterable(mixed $value): void
     {
         if (! is_iterable($value)) {
             throw new InvalidArgumentException('Value in not iterable.');
@@ -101,7 +102,7 @@ class SimpleFileCache implements CacheInterface
     /**
      * @throws CacheException If cache path does not exist or could not be created.
      */
-    protected function ensureCachePathExistence(): void
+    protected function ensureCachePathExistence(): bool
     {
         try {
             if (! $this->fileSystemService->dirExists($this->getCachePath())) {
@@ -110,6 +111,8 @@ class SimpleFileCache implements CacheInterface
         } catch (Throwable $exception) {
             throw new CacheException($exception->getMessage());
         }
+
+        return true;
     }
 
     /**
@@ -121,7 +124,7 @@ class SimpleFileCache implements CacheInterface
     protected function persistData(string $filePath, array $data): bool
     {
         try {
-            return (bool) $this->fileSystemService->storeDataToFile($filePath, json_encode($data));
+            return $this->fileSystemService->storeDataToFile($filePath, json_encode($data));
         } catch (Throwable $exception) {
             throw new CacheException($exception->getMessage());
         }
@@ -174,7 +177,7 @@ class SimpleFileCache implements CacheInterface
      *
      * @noinspection PhpMissingParamTypeInspection because of interface implementation
      */
-    public function has($key)
+    public function has(string $key): bool
     {
         $cacheItemFilePath = $this->resolveCacheItemFilePath($key);
 
@@ -205,7 +208,7 @@ class SimpleFileCache implements CacheInterface
      *
      * @noinspection PhpMissingParamTypeInspection because of interface implementation
      */
-    public function get($key, $default = null)
+    public function get(string $key, mixed $default = null): mixed
     {
         return $this->getSingleFromData($key, $default);
     }
@@ -225,7 +228,7 @@ class SimpleFileCache implements CacheInterface
      *
      * @noinspection PhpMissingParamTypeInspection because of interface implementation
      */
-    public function getMultiple($keys, $default = null)
+    public function getMultiple(iterable $keys, mixed $default = null): iterable
     {
         $this->validateIterable($keys);
 
@@ -244,7 +247,7 @@ class SimpleFileCache implements CacheInterface
      * @return mixed|null
      * @throws CacheException|InvalidArgumentException
      */
-    protected function getSingleFromData(string $key, $default = null)
+    protected function getSingleFromData(string $key, mixed $default = null): mixed
     {
         $cacheItemFilePath = $this->resolveCacheItemFilePath($key);
 
@@ -290,7 +293,7 @@ class SimpleFileCache implements CacheInterface
      *
      * @noinspection PhpMissingParamTypeInspection because of interface implementation
      */
-    public function set($key, $value, $ttl = null)
+    public function set(string $key, mixed $value, $ttl = null): bool
     {
         return $this->setSingle($key, $value, $ttl);
     }
@@ -310,7 +313,7 @@ class SimpleFileCache implements CacheInterface
      *
      * @noinspection PhpMissingParamTypeInspection because of interface implementation
      */
-    public function setMultiple($values, $ttl = null)
+    public function setMultiple(iterable $values, DateInterval|int|null $ttl = null): bool
     {
         $this->validateIterable($values);
 
@@ -327,11 +330,11 @@ class SimpleFileCache implements CacheInterface
     /**
      * @param string $key
      * @param mixed $value
-     * @param null|int|DateInterval $ttl
+     * @param DateInterval|int|null $ttl
      * @return bool
      * @throws CacheException|InvalidArgumentException
      */
-    protected function setSingle(string $key, $value, $ttl = null): bool
+    protected function setSingle(string $key, mixed $value, DateInterval|int|null $ttl = null): bool
     {
         $cacheItemFileName = $this->generateCacheItemFileName($key);
         $cacheItemSubDir = $this->resolveCacheItemSubDir($cacheItemFileName);
@@ -361,7 +364,7 @@ class SimpleFileCache implements CacheInterface
      *
      * @noinspection PhpMissingParamTypeInspection because of interface implementation
      */
-    public function delete($key)
+    public function delete(string $key): bool
     {
         $cacheItemFilePath = $this->resolveCacheItemFilePath($key);
 
@@ -375,7 +378,7 @@ class SimpleFileCache implements CacheInterface
     /**
      * Deletes multiple cache items in a single operation.
      *
-     * @param iterable $keys A list of string-based keys to be deleted.
+     * @param iterable<string> $keys A list of string-based keys to be deleted.
      *
      * @return bool True if the items were successfully removed. False if there was an error.
      *
@@ -385,7 +388,7 @@ class SimpleFileCache implements CacheInterface
      *
      * @noinspection PhpMissingParamTypeInspection because of interface implementation
      */
-    public function deleteMultiple($keys)
+    public function deleteMultiple(iterable $keys): bool
     {
         $this->validateIterable($keys);
 
@@ -406,7 +409,7 @@ class SimpleFileCache implements CacheInterface
      *
      * @throws CacheException
      */
-    public function clear()
+    public function clear(): bool
     {
         return $this->fileSystemService->rmDirRecursive($this->getCachePath()) &&
             $this->ensureCachePathExistence();
@@ -418,7 +421,7 @@ class SimpleFileCache implements CacheInterface
      * @return array
      * @throws InvalidArgumentException
      */
-    protected function prepareCacheItemArray($value, $ttl = null): array
+    protected function prepareCacheItemArray(mixed $value, DateInterval|int|null $ttl = null): array
     {
         return (new CacheItem($value, $ttl))->getItemArray();
     }

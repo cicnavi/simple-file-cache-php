@@ -7,8 +7,11 @@ namespace Cicnavi\Tests\SimpleFileCache\Services;
 use Cicnavi\SimpleFileCache\Services\FileSystemService;
 use Cicnavi\Tests\SimpleFileCache\Tools;
 use Exception;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(FileSystemService::class)]
 class FileSystemServiceTest extends TestCase
 {
     protected static FileSystemService $fileSystemService;
@@ -21,7 +24,7 @@ class FileSystemServiceTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        self::$testPath = dirname(__DIR__, 2) . '/tmp/filesystem-test';
+        self::$testPath = dirname(__DIR__, 2) . '/build/filesystem-test';
         self::$fileSystemService = new FileSystemService();
     }
 
@@ -44,29 +47,21 @@ class FileSystemServiceTest extends TestCase
         $this->assertTrue(is_dir(self::$testPath));
     }
 
-    /**
-     * @depends testCreateDir
-     */
+    #[Depends('testCreateDir')]
     public function testCreateExistingDir(): void
     {
         $this->expectException(Exception::class);
         self::$fileSystemService->createDir(self::$testPath);
     }
 
-    /**
-     * @depends testCreateDir
-     */
+    #[Depends('testCreateDir')]
     public function testIsWritableDir(): void
     {
         $this->assertFalse(self::$fileSystemService->isWritableDir('invalid-path'));
         $this->assertTrue(self::$fileSystemService->isWritableDir(self::$testPath));
     }
 
-    /**
-     * @throws Exception
-     *
-     * @depends testCreateDir
-     */
+    #[Depends('testCreateDir')]
     public function testCreateFile(): void
     {
         $filePath = self::$testPath . '/' . self::$testFileName;
@@ -75,6 +70,7 @@ class FileSystemServiceTest extends TestCase
         $this->assertTrue(self::$fileSystemService->fileExists($filePath));
     }
 
+    #[Depends('testCreateFile')]
     public function testCreateExistingFile(): void
     {
         $filePath = self::$testPath . '/' . self::$testFileName;
@@ -94,11 +90,8 @@ class FileSystemServiceTest extends TestCase
         self::$fileSystemService->getDataFromFile(self::$testPath . '/invalid-file.json');
     }
 
-    /**
-     * @throws \Cicnavi\SimpleFileCache\Exceptions\CacheException
-     * @depends testCreateDir
-     * @depends testCreateFile
-     */
+    #[Depends('testCreateDir')]
+    #[Depends('testCreateFile')]
     public function testGetDataFromFileThrowsOnFileGetContentsError(): void
     {
         $filePath = self::$testPath . '/' . self::$testFileName;
@@ -106,10 +99,8 @@ class FileSystemServiceTest extends TestCase
         self::$fileSystemService->getDataFromFile($filePath, __NAMESPACE__ . '\FileSystemServiceTest::fileGetContents');
     }
 
-    /**
-     * @depends testCreateDir
-     * @depends testCreateFile
-     */
+    #[Depends('testCreateDir')]
+    #[Depends('testCreateFile')]
     public function testStoreDataToFile(): void
     {
         $filePath = self::$testPath . '/' . self::$testFileName;
@@ -120,9 +111,7 @@ class FileSystemServiceTest extends TestCase
         $this->assertNotSame(self::$testData, $data);
     }
 
-    /**
-     * @depends testCreateFile
-     */
+    #[Depends('testCreateFile')]
     public function testIsWritableFile(): void
     {
         $filePath = self::$testPath . '/' . self::$testFileName;
@@ -131,9 +120,7 @@ class FileSystemServiceTest extends TestCase
         $this->assertFalse(self::$fileSystemService->isWritableFile(self::$testPath . '/invalid'));
     }
 
-    /**
-     * @depends testCreateFile
-     */
+    #[Depends('testCreateFile')]
     public function testIsReadableFile(): void
     {
         $filePath = self::$testPath . '/' . self::$testFileName;
@@ -142,9 +129,7 @@ class FileSystemServiceTest extends TestCase
         $this->assertFalse(self::$fileSystemService->isReadableFile(self::$testPath . '/invalid'));
     }
 
-    /**
-     * @depends testCreateDir
-     */
+    #[Depends('testCreateDir')]
     public function testRmDirRecursive(): void
     {
         $sampleDir = self::$testPath . '/recursive/dir/test';
@@ -158,22 +143,14 @@ class FileSystemServiceTest extends TestCase
         $this->assertFalse(self::$fileSystemService->dirExists($sampleDir));
     }
 
-    /**
-     * @throws Exception
-     *
-     * @depends testCreateDir
-     */
+    #[Depends('testCreateDir')]
     public function testDeleteNonExistentFileThrows(): void
     {
         $this->expectException(Exception::class);
         self::$fileSystemService->deleteFile(self::$testPath . '/' . 'non-existent');
     }
 
-    /**
-     * @throws Exception
-     *
-     * @depends testCreateDir
-     */
+    #[Depends('testCreateDir')]
     public function testDelete(): void
     {
         $filePath = self::$testPath . '/' . 'to-be-deleted.json';
